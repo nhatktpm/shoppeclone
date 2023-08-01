@@ -1,5 +1,7 @@
+import { toast } from 'react-toastify';
 import axios, { AxiosError, type AxiosInstance } from 'axios'
 import config from './config'
+import HttpStatusCode from '../constants/httpStatusCode.enum';
 
 class Http {
   instance: AxiosInstance
@@ -13,6 +15,17 @@ class Http {
         // 'expire-refresh-token': 60 * 60 * 24 * 160 // 160 ngày
       }
     })
+    this.instance.interceptors.response.use(function (response) {
+
+      return response;
+    }, function (error: AxiosError) {
+      if (error.response?.status != HttpStatusCode.UnprocessableEntity) {
+        const data: any | undefined = error.response?.data
+        const message = data.message || error.message
+        toast.error(message)
+      }
+      return Promise.reject(error);
+    });
   }
 }
 

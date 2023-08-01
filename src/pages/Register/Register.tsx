@@ -33,6 +33,7 @@ export default function Register() {
     const body = omit(data, ['confirm_password'])
     registerAccountmutation.mutate(body, {
       onSuccess: data => {
+        debugger
         console.log(data);
       }, onError: (err) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(err)) {
