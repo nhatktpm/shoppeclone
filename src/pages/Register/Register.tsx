@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Input from '../../components/Input/Input'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { schema } from '../../utils/types'
@@ -8,6 +8,8 @@ import { registerAccount } from '../../apis/auth.api'
 import { omit } from 'lodash'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from '../../types/utils.type'
+import { useContext } from 'react'
+import { AppContext } from '../../contexts/app.context'
 
 interface FormData {
   email: string
@@ -25,6 +27,9 @@ export default function Register() {
     resolver: yupResolver(schema)
   })
 
+  const { setIsAuthenticated } = useContext(AppContext)
+  const navigate = useNavigate()
+
   const registerAccountmutation = useMutation({
     mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
   })
@@ -33,8 +38,8 @@ export default function Register() {
     const body = omit(data, ['confirm_password'])
     registerAccountmutation.mutate(body, {
       onSuccess: data => {
-        debugger
-        console.log(data);
+        setIsAuthenticated(true)
+        navigate('/')
       }, onError: (err) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(err)) {
           const formError = err.response?.data.data
@@ -46,19 +51,6 @@ export default function Register() {
               })
             })
           }
-
-          // if (formError?.email) {
-          //   setError('email', {
-          //     message: formError.email,
-          //     type: 'Server'
-          //   })
-          // }
-          // if (formError?.password) {
-          //   setError('password', {
-          //     message: formError.password,
-          //     type: 'Server'
-          //   })
-          // }
         }
       }
     })

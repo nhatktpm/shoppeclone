@@ -1,12 +1,14 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { schemalogin, Schema } from '../../utils/types'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from '../../types/utils.type'
 import { useMutation } from '@tanstack/react-query'
 import { loginAccount } from '../../apis/auth.api'
 import Input from '../../components/Input/Input'
+import { useContext } from 'react'
+import { AppContext } from '../../contexts/app.context'
 
 type FormData = Omit<Schema, 'confirm_password'>
 
@@ -18,8 +20,8 @@ export default function Login() {
     resolver: yupResolver(schemalogin)
   })
 
-
-
+  const { setIsAuthenticated } = useContext(AppContext)
+  const navigate = useNavigate()
 
   const loginAccountmutation = useMutation({
     mutationFn: (body: FormData) => loginAccount(body)
@@ -28,7 +30,8 @@ export default function Login() {
   const onSubmit = handleSubmit((data) => {
     loginAccountmutation.mutate(data, {
       onSuccess: data => {
-        console.log(data);
+        setIsAuthenticated(true)
+        navigate('/')
       }, onError: (err) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<FormData>>(err)) {
           const formError = err.response?.data.data
