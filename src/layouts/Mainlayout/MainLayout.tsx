@@ -7,6 +7,7 @@ interface Props {
 }
 
 export default function MainLayout({ children }: Props) {
+  console.log(children);
   return (
     <div>
       <Header />

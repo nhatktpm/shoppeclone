@@ -5,10 +5,11 @@ import { schemalogin, Schema } from '../../utils/types'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from '../../types/utils.type'
 import { useMutation } from '@tanstack/react-query'
-import { loginAccount } from '../../apis/auth.api'
+import authApi from '../../apis/auth.api'
 import Input from '../../components/Input/Input'
 import { useContext } from 'react'
 import { AppContext } from '../../contexts/app.context'
+import Button from '../../components/Button'
 
 type FormData = Omit<Schema, 'confirm_password'>
 
@@ -20,17 +21,18 @@ export default function Login() {
     resolver: yupResolver(schemalogin)
   })
 
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
 
   const loginAccountmutation = useMutation({
-    mutationFn: (body: FormData) => loginAccount(body)
+    mutationFn: (body: FormData) => authApi.login(body)
   })
 
   const onSubmit = handleSubmit((data) => {
     loginAccountmutation.mutate(data, {
       onSuccess: data => {
         setIsAuthenticated(true)
+        setProfile(data.data.data.user)
         navigate('/')
       }, onError: (err) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<FormData>>(err)) {
@@ -73,12 +75,14 @@ export default function Login() {
                 autoComplete='on'
               />
               <div className='mt-3'>
-                <button
+                <Button
                   type='submit'
                   className='flex  w-full items-center justify-center bg-red-500 py-4 px-2 text-sm uppercase text-white hover:bg-red-600'
+                  isLoading={loginAccountmutation.isLoading}
+                  disabled={loginAccountmutation.isLoading}
                 >
                   Đăng nhập
-                </button>
+                </Button>
               </div>
               <div className='mt-8 flex items-center justify-center'>
                 <span className='text-gray-400'>Bạn chưa có tài khoản?</span>

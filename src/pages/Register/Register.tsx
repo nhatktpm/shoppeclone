@@ -4,12 +4,13 @@ import Input from '../../components/Input/Input'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { schema } from '../../utils/types'
 import { useMutation } from '@tanstack/react-query'
-import { registerAccount } from '../../apis/auth.api'
+import authApi from '../../apis/auth.api'
 import { omit } from 'lodash'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from '../../types/utils.type'
 import { useContext } from 'react'
 import { AppContext } from '../../contexts/app.context'
+import Button from '../../components/Button'
 
 interface FormData {
   email: string
@@ -27,11 +28,11 @@ export default function Register() {
     resolver: yupResolver(schema)
   })
 
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
 
   const registerAccountmutation = useMutation({
-    mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => authApi.registerAccount(body)
   })
 
   const onSubmit = handleSubmit((data) => {
@@ -39,6 +40,7 @@ export default function Register() {
     registerAccountmutation.mutate(body, {
       onSuccess: data => {
         setIsAuthenticated(true)
+        setProfile(data.data.data.user)
         navigate('/')
       }, onError: (err) => {
         if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(err)) {
@@ -91,12 +93,14 @@ export default function Register() {
                 autoComplete='on'
               />
               <div className='mt-3'>
-                <button
+                <Button
                   type='submit'
                   className='flex  w-full items-center justify-center bg-red-500 py-4 px-2 text-sm uppercase text-white hover:bg-red-600'
+                  isLoading={registerAccountmutation.isLoading}
+                  disabled={registerAccountmutation.isLoading}
                 >
                   Đăng nhập
-                </button>
+                </Button>
               </div>
               <div className='mt-8 flex items-center justify-center'>
                 <span className='text-gray-400'>Bạn chưa có tài khoản?</span>

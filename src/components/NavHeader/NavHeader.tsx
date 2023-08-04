@@ -4,18 +4,20 @@ import { Link } from 'react-router-dom'
 import Popover from '../Popover'
 import path from '../../constants/path'
 import { AppContext } from '../../contexts/app.context'
-import { logout } from '../../apis/auth.api'
+import authApi from '../../apis/auth.api'
+import { setProfileLS } from '../../utils/auth'
 
 
 export default function NavHeader() {
   // const { i18n } = useTranslation()
   // const currentLanguage = locales[i18n.language as keyof typeof locales]
 
-  const { setIsAuthenticated, isAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, isAuthenticated, setProfile, profile } = useContext(AppContext)
   const logoutMutation = useMutation({
-    mutationFn: logout,
+    mutationFn: authApi.logout,
     onSuccess: () => {
       setIsAuthenticated(false)
+      setProfile(null)
     }
   })
 
@@ -98,7 +100,7 @@ export default function NavHeader() {
           <div className='mr-2 h-6 w-6 flex-shrink-0'>
             <img src="" alt='avatar' className='h-full w-full rounded-full object-cover' />
           </div>
-          {/* <div>{profile?.email}</div> */}
+          <div>{profile?.email}</div>
         </Popover>
       )}
       {!isAuthenticated && (
