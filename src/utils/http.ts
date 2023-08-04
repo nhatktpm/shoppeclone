@@ -34,7 +34,6 @@ class Http {
 
     this.instance.interceptors.response.use((response) => {
       const { url } = response.config
-      debugger
       if (url === URL_LOGIN || url === URL_REGISTER) {
         const data = response.data as AuthResponse
         this.accessToken = (response.data as AuthResponse).data.access_token
