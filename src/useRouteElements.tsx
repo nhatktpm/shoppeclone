@@ -55,16 +55,19 @@ export default function useRouteElements() {
     },
     {
       path: '',
-      element: <MainLayout />,
-      children: [
-        {
-          path: '',
-          index: true,
-          element: (
-            <ProductList />
-          )
-        }
-      ]
+      index: true,
+      element: <MainLayout>
+        <ProductList />
+      </MainLayout>,
+      // children: [
+      //   {
+      //     path: '',
+      //     index: true,
+      //     element: (
+      //       <ProductList />
+      //     )
+      //   }
+      // ]
     }
   ])
 
